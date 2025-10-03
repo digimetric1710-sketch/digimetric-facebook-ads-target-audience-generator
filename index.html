@@ -1,894 +1,883 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="my">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Facebook Audience Suggestor</title>
-   <script src="https://cdn.tailwindcss.com"></script>
-  
-   <!-- ========================================================================================= -->
-   <!-- CSS Section (Styles) -->
-   <!-- ========================================================================================= -->
-   <style>
-       /* Custom styles for better mobile experience and aesthetics */
-       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-       body {
-           font-family: 'Inter', sans-serif;
-           background-color: #eef2ff; /* Light lavender background */
-       }
-       .gradient-fb {
-           /* Facebook primary blue gradient */
-           background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-       }
-       .shadow-primary {
-           /* Deeper shadow for main card */
-           box-shadow: 0 20px 40px -10px rgba(30, 64, 175, 0.5), 0 10px 15px -5px rgba(30, 64, 175, 0.1);
-       }
-       .result-card {
-           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-           transform: translateY(0);
-       }
-       .result-card:hover {
-           transform: translateY(-3px); /* Slightly more lift on hover */
-           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Nicer shadow on hover */
-       }
-       /* Style for policy modal content */
-       .policy-text h4 {
-           font-size: 1.125rem; /* text-lg */
-           font-weight: 700; /* font-bold */
-           margin-top: 1rem;
-           margin-bottom: 0.5rem;
-           color: #1f2937; /* gray-800 */
-       }
-       .policy-text ul {
-           list-style: disc;
-           padding-left: 1.5rem;
-           margin-top: 0.5rem;
-           margin-bottom: 1rem;
-           line-height: 1.6;
-       }
-       .policy-text li {
-           margin-bottom: 0.5rem;
-       }
-       /* Style for the fixed header button */
-       #logoutButton {
-           transition: opacity 0.3s;
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Audience Suggestor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ========================================================================================= -->
+    <!-- CSS Section (Styles) -->
+    <!-- ========================================================================================= -->
+    <style>
+        /* Custom styles for better mobile experience and aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2ff; /* Light lavender background */
+        }
+        .gradient-fb {
+            /* Facebook primary blue gradient */
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); 
+        }
+        .shadow-primary {
+            /* Deeper shadow for main card */
+            box-shadow: 0 20px 40px -10px rgba(30, 64, 175, 0.5), 0 10px 15px -5px rgba(30, 64, 175, 0.1);
+        }
+        .result-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+        }
+        .result-card:hover {
+            transform: translateY(-3px); /* Slightly more lift on hover */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Nicer shadow on hover */
+        }
+        /* Style for policy modal content */
+        .policy-text h4 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700; /* font-bold */
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937; /* gray-800 */
+        }
+        .policy-text ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .policy-text li {
+            margin-bottom: 0.5rem;
+        }
+        /* Style for the fixed header button */
+        #logoutButton {
+            transition: opacity 0.3s;
+        }
+    </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 relative">
-  
-   <!-- ========================================================================================= -->
-   <!-- HTML Section (Structure) -->
-   <!-- ========================================================================================= -->
-  
-   <!-- Main Application Card -->
-   <div class="w-full max-w-xl bg-white rounded-3xl shadow-primary overflow-hidden">
-      
-       <!-- Header Section -->
-       <div class="gradient-fb p-6 text-white text-center rounded-t-3xl flex flex-col items-center relative">
-          
-           <!-- Logout Button (Hidden initially) -->
-           <button
-               id="logoutButton"
-               class="absolute top-4 right-4 text-sm font-semibold py-1 px-3 bg-red-500 rounded-full hover:bg-red-600 transition duration-200 hidden"
-               onclick="logoutUser()"
-           >
-               Logout
-           </button>
-
-
-           <!-- Facebook 'f' Icon (Canonical SVG for visibility) -->
-           <svg class="w-10 h-10 mb-2" fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-               <path d="M12 0C5.373 0 0 5.373 0 12c0 5.99 4.388 10.954 10.125 11.854V15.467H7.078V12h3.047V9.35c0-3.007 1.792-4.661 4.533-4.661 1.313 0 2.686.234 2.686.234v2.953H15.83c-1.491 0-1.956.925-1.956 1.874V12h3.328l-.532 3.467h-2.796v6.387C19.612 22.954 24 17.99 24 12 24 5.373 18.627 0 12 0z"/>
-           </svg>
-          
-           <!-- Header Text -->
-           <h1 class="text-4xl font-extrabold mb-1">Digimetric</h1>
-           <p class="text-lg opacity-100 font-semibold mb-1">Facebook Boosting Target Audience Builder</p>
-          
-           <p class="text-sm opacity-90 font-medium">AI-Powered Targeting Research စနစ်ပါဝင်ပြီးဖြစ်သည်။</p>
-       </div>
-
-
-       <!-- ============================================== -->
-       <!-- 0. LOGIN SECTION (API KEY INPUT) -->
-       <!-- ============================================== -->
-       <div id="loginSection" class="p-6">
-           <div class="mb-5 p-5 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-md">
-               <h3 class="text-xl font-bold text-yellow-800 mb-3 flex items-center">
-                   <span class="mr-2 text-2xl">🔑</span> Gemini API Key ဖြင့် ဝင်ရောက်ပါ
-               </h3>
-               <p class="text-sm font-medium text-gray-700 mb-3">
-                   ကျေးဇူးပြု၍ သင့်၏ **Gemini API Key** ကို ထည့်သွင်းပါ။ Key သည် သင့်၏ Local Browser တွင်သာ သိမ်းဆည်းထားမည်ဖြစ်ပါသည်။
-               </p>
-               <input
-                   type="text"
-                   id="apiInput"
-                   placeholder="YOUR_GEMINI_API_KEY_HERE"
-                   class="w-full p-3 border-2 border-yellow-400 rounded-xl focus:ring-yellow-600 focus:border-yellow-600 transition duration-200 shadow-inner"
-               >
-               <button
-                   id="loginButton"
-                   class="w-full mt-4 p-3 bg-yellow-600 text-white font-extrabold text-lg rounded-xl hover:bg-yellow-700 transition duration-200 shadow-lg shadow-yellow-300 active:scale-[0.98] transform"
-               >
-                   API Key သိမ်းဆည်း၍ စတင်အသုံးပြုရန်
-               </button>
-           </div>
-       </div>
-       <!-- ============================================== -->
-       <!-- 1. MAIN APPLICATION SECTION -->
-       <!-- ============================================== -->
-       <div id="appSection" class="hidden">
-           <div class="p-6 pt-0">
-              
-               <!-- 1. Goal Setting Section -->
-               <div class="mb-5">
-                   <label for="goalSelect" class="block text-lg font-bold text-gray-700 mb-2">1. Facebook Ad Goal ရွေးချယ်ပါ:</label>
-                   <select
-                       id="goalSelect"
-                       class="w-full p-3 border-2 border-gray-300 rounded-xl bg-white focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
-                   >
-                       <option value="engagement" selected>Engagement (ထိတွေ့မှု)</option>
-                       <option value="messages_and_sales">Messages & Sales (မက်ဆေ့ခ်ျနှင့် အရောင်း)</option>
-                       <option value="traffic">Traffic (၀က်ဘ်ဆိုဒ် အသွားအလာ)</option>
-                       <option value="conversions">Conversions (ပြောင်းလဲမှု)</option>
-                       <option value="lead_generation">Lead Generation (ဦးဆောင်သူ စုဆောင်းမှု)</option>
-                       <option value="video_views">Video Views (ဗီဒီယို ကြည့်ရှုမှု)</option>
-                   </select>
-               </div>
-               <!-- End Goal Setting Section -->
-
-
-               <!-- 1.5 Region Selection -->
-               <div class="mb-5">
-                   <label for="regionSelect" class="block text-lg font-bold text-gray-700 mb-2">1.5 Target Region ရွေးချယ်ပါ:</label>
-                   <select
-                       id="regionSelect"
-                       class="w-full p-3 border-2 border-gray-300 rounded-xl bg-white focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
-                   >
-                       <option value="myanmar" selected>Myanmar (မြန်မာ)</option>
-                       <option value="thailand">Thailand (ထိုင်း)</option>
-                       <option value="uae">UAE (ယူအေအီး)</option>
-                   </select>
-               </div>
-               <!-- End Region Selection -->
-
-
-
-
-               <!-- 2. Keyword Input -->
-               <div class="mb-5">
-                   <label for="keywordInput" class="block text-lg font-bold text-gray-700 mb-2">2. လုပ်ငန်းအမျိုးအစား Keyword (မြန်မာ သို့မဟုတ် English):</label>
-                   <input
-                       type="text"
-                       id="keywordInput"
-                       placeholder="Keyword ကိုရိုက်ထည့်ပါ (ဥပမာ: အမျိုးသမီးဝတ်အထည် သို့မဟုတ် Fashion)..."
-                       class="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
-                   >
-               </div>
-               <!-- End Keyword Input -->
-              
-               <!-- 3. Budget Setting Section (Icon Removed) -->
-               <div class="mb-5 p-5 bg-green-50 rounded-2xl border border-green-200 shadow-md">
-                   <label class="block text-lg font-bold text-gray-700 mb-3">
-                       3. Budget သတ်မှတ်ပါ:
-                   </label>
-                  
-                   <!-- Budget Amount -->
-                   <div class="mb-4">
-                       <label for="budgetAmount" class="block text-sm font-medium text-gray-600 mb-1">Budget Amount (USD $): (Minimum $5)</label>
-                       <input
-                           type="number"
-                           id="budgetAmount"
-                           value="5"
-                           min="5"
-                           class="w-full p-3 border-2 border-green-400 rounded-xl focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
-                       >
-                   </div>
-                  
-                   <div class="flex space-x-4">
-                       <!-- Option -->
-                       <div class="flex-1">
-                           <label for="budgetOption" class="block text-sm font-medium text-gray-600 mb-1">Option:</label>
-                           <select
-                               id="budgetOption"
-                               class="w-full p-3 border-2 border-green-400 rounded-xl bg-white focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
-                           >
-                               <option value="daily">Daily</option>
-                               <option value="lifetime">Lifetime</option>
-                           </select>
-                       </div>
-
-
-                       <!-- Days -->
-                       <div class="flex-1">
-                           <label for="adDays" class="block text-sm font-medium text-gray-600 mb-1">Days (ရက်):</label>
-                           <input
-                               type="number"
-                               id="adDays"
-                               value="7"
-                               min="1"
-                               class="w-full p-3 border-2 border-green-400 rounded-xl focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
-                           >
-                       </div>
-                   </div>
-               </div>
-               <!-- End Budget Setting Section -->
-
-
-               <button
-                   id="suggestButton"
-                   class="w-full mt-6 p-4 gradient-fb text-white font-extrabold text-lg rounded-xl hover:opacity-90 transition duration-200 shadow-lg shadow-blue-400 active:scale-[0.98] transform flex items-center justify-center"
-               >
-                   <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                   <span id="buttonText">Audience အကြံပြုချက်များ & ရလဒ် ခန့်မှန်းရန်</span>
-               </button>
-           </div>
-
-
-           <!-- Result Section (Including Policy Button now) -->
-           <div class="p-6 pt-0">
-               <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4" id="resultTitle">4. ရလဒ်များ:</h2>
-              
-               <!-- Estimation Container (4.1) -->
-               <div id="estimationContainer" class="mb-6">
-                   <!-- Estimation will be injected here -->
-               </div>
-              
-               <!-- Audience Results Container (4.2) -->
-               <div id="resultsContainer" class="min-h-24">
-                   <p class="text-gray-500 italic text-center py-4" id="initialMessage">အကြံပြုချက်များ ဒီနေရာမှာပေါ်လာပါမယ်။</p>
-                   <!-- Demographics/Interests/Behaviors/Hashtags will be injected here -->
-               </div>
-              
-               <!-- POLICY BUTTON - MOVED INSIDE RESULTS SECTION -->
-               <button
-                   id="policyButton"
-                   class="w-full mt-6 p-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition duration-200 shadow-lg shadow-red-300 active:scale-[0.98] transform flex items-center justify-center"
-                   onclick="showPolicySummary()"
-               >
-                   <span class="text-xl mr-2">⚠️</span>
-                   Facebook AD Policy များဖတ်ရန် (2025 Policy Outlook)
-               </button>
-
-
-           </div>
-       </div>
-   </div>
-  
-   <!-- POLICY MODAL -->
-   <div id="policyModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden items-center justify-center p-4">
-       <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
-           <div class="p-4 gradient-fb text-white flex justify-between items-center">
-               <h3 class="text-xl font-bold">Facebook AD Policy: 2025 Outlook</h3>
-               <button onclick="closeModal('policyModal')" class="text-white hover:text-gray-200">
-                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-               </button>
-           </div>
-           <div id="policyContent" class="p-6 overflow-y-auto flex-grow policy-text">
-               <!-- Content will be loaded here -->
-               <div class="text-center py-10">
-                   <svg id="policyLoadingSpinner" class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                   <p class="text-gray-600">Policy အချက်အလက်များကို ရှာဖွေနေပါသည်... (ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေခြင်း)</p>
-               </div>
-           </div>
-           <div id="policySources" class="p-4 border-t text-xs text-gray-500 hidden">
-               <!-- Sources will be loaded here -->
-           </div>
-       </div>
-   </div>
-
-
-   <!-- ========================================================================================= -->
-   <!-- JavaScript Section (Logic) -->
-   <!-- ========================================================================================= -->
-   <script>
-       // --- API Configuration ---
-       const API_KEY_STORE_KEY = 'geminiApiKey';
-       // Initialize apiKey from local storage. If not found, it remains an empty string.
-       let apiKey = localStorage.getItem(API_KEY_STORE_KEY) || "";
-       let apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
-      
-       // --- Audience Data (Static Fallback data) ---
-       const genericAudience = {
-           demographics: "Age 20-55, All Genders, Located in Major Cities (Yangon/Mandalay), Smartphone Users, People with High Digital Activity",
-           interests: "Online Shopping, Local Businesses, Discounts & Offers, Entertainment (TV Shows/Movies), Personal Finance, E-commerce, Lifestyle, News & Media, Technology, Travel, Food & Drink, Fitness, Home Decor, Automotive, Education, Gaming, Music",
-           behaviors: "Engagement Shoppers (6 months), Mobile Device Users (Any), People who click 'Shop Now', Digital Activities (General), Online Buyers, Frequent Travelers, Interested in High-Value Goods, Video Viewers (30 days)",
-           english_hashtags: "#OnlineShopping,#TodaysTrend,#Community,#InstaDaily,#Ecommerce,#DigitalMarketing,#BusinessGoals,#TrendingNow,#DailyLife,#Deals,#Offers,#Lifestyle,#ShopOnline,#TechNews,#TravelGoals,#Foodie,#FitnessMotivation,#HomeDecor,#Gaming,#MusicLover,#Newstoday",
-           myanmar_hashtags: "#အွန်လိုင်းစျေး,#ခေတ်စားနေသည်,#မြန်မာပြည်,#စျေးဝယ်,#နည်းပညာ,#ဘဝပုံစံ,#နေ့စဉ်မှတ်တမ်း,#ခရီးသွား,#ကျန်းမာရေး,#ပျော်ရွှင်ခြင်း,#အလှအပရေးရာ,#အိမ်တွင်းအလှဆင်,#စားသောက်ဆိုင်,#ကားဝါသနာရှင်,#ပညာရေး",
-       };
-
-
-       // --- POLICY FALLBACK CONTENT (New addition for robustness) ---
-       const FALLBACK_POLICY_CONTENT_MM = `
-           <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg mb-4 text-sm font-medium">
-               <p class="font-bold">⚠️ Data ရယူမှု မအောင်မြင်ပါ!</p>
-               <p>ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေရာတွင် ချို့ယွင်းမှုကြောင့် အရေးကြီးသော **Static Policy Summary** ကို ပြသထားပါသည်။</p>
-           </div>
-           <h4>🛑 မဖြစ်မနေ လိုက်နာရမည့် အချက်များ (၂၀၂၅)</h4>
-           <p>Facebook (Meta) ကြော်ငြာမူဝါဒများသည် သုံးစွဲသူများ၏ စိတ်ချယုံကြည်မှုကို ထိန်းသိမ်းရန်နှင့် တရားဥပဒေနှင့်အညီဖြစ်စေရန် ရည်ရွယ်သည်။ အောက်ပါအချက်များကို အထူးဂရုပြုပါ။</p>
-
-
-           <h4>၁။ တားမြစ်ထားသော အကြောင်းအရာများ (Prohibited Content)</h4>
-           <ul>
-               <li>တရားမဝင်သော ထုတ်ကုန်များ သို့မဟုတ် ဝန်ဆောင်မှုများ (ဥပမာ- မူးယစ်ဆေးဝါး၊ လက်နက်)</li>
-               <li>ခွဲခြားဆက်ဆံမှု၊ အမုန်းစကားများ၊ ခြိမ်းခြောက်မှုများ၊ အကြမ်းဖက်မှု မြှင့်တင်သည့် အကြောင်းအရာများ။</li>
-               <li>စီးကရက်နှင့် ဆက်စပ်ပစ္စည်းများ၊ လုံခြုံမှုမရှိသော ဖြည့်စွက်စာများ (Unsafe Supplements)။</li>
-           </ul>
-
-
-           <h4>၂။ ကန့်သတ်ထားသော အကြောင်းအရာများ (Restricted Content)</h4>
-           <ul>
-               <li>အရက်၊ ကာစီနိုလောင်းကစား (Gambling)၊ ချိန်းတွေ့ခြင်း ဝန်ဆောင်မှုများ (Dating Services) နှင့် ပတ်သက်သော ကြော်ငါ္နာများသည် သက်ဆိုင်ရာ ဥပဒေများအတိုင်း ခွင့်ပြုချက်နှင့် အသက်ကန့်သတ်ချက်များ လိုအပ်သည်။</li>
-               <li>နိုင်ငံရေး၊ လူမှုရေး သို့မဟုတ် ရွေးကောက်ပွဲဆိုင်ရာ ကြော်ငြာများကို အတည်ပြုလက်မှတ် (Authorization) ယူထားရမည်။</li>
-               <li>ငွေကြေးနှင့်ပတ်သက်သော ထုတ်ကုန်များ (Cryptocurrency စသည်ဖြင့်) ကို ကြော်ငြာရန် ခွင့်ပြုချက် လိုအပ်သည်။</li>
-           </ul>
-
-
-           <h4>၃။ မူဝါဒ ရှောင်ရှားခြင်းနှင့် အရည်အသွေး (Evasion & Quality)</h4>
-           <ul>
-               <li>ကြော်ငြာစနစ်၏ စိစစ်မှုကို ရှောင်လွှဲရန် ရည်ရွယ်ချက်ဖြင့် စာသား၊ ပုံရိပ် သို့မဟုတ် ဦးတည်ရာနေရာ (Landing Page) များကို ဝှက်ထားခြင်း၊ ပြောင်းလဲခြင်း မပြုရ။</li>
-               <li>ဆင်းသက်ရာ စာမျက်နှာ (Landing Page) သည် ကြော်ငြာပါအကြောင်းအရာနှင့် ကိုက်ညီရမည်။</li>
-               <li>အတုအယောင် သို့မဟုတ် လိမ်လည်လှည့်ဖြားသော အပြုအမူများကို တားမြစ်သည်။</li>
-           </ul>
-       `;
-       // --- END POLICY FALLBACK CONTENT ---
-      
-       // UI Elements
-       const resultsContainer = document.getElementById('resultsContainer');
-       const keywordInput = document.getElementById('keywordInput');
-       const goalSelect = document.getElementById('goalSelect');
-       const budgetAmount = document.getElementById('budgetAmount');
-       const budgetOption = document.getElementById('budgetOption');
-       const adDays = document.getElementById('adDays');
-       const regionSelect = document.getElementById('regionSelect');
-       const suggestButton = document.getElementById('suggestButton');
-       const loadingSpinner = document.getElementById('loadingSpinner');
-       const buttonText = document.getElementById('buttonText');
-      
-       // Policy elements
-       const policyModal = document.getElementById('policyModal');
-       const policyContent = document.getElementById('policyContent');
-       const policySources = document.getElementById('policySources');
-
-
-       // Login elements
-       const loginSection = document.getElementById('loginSection');
-       const appSection = document.getElementById('appSection');
-       const apiInput = document.getElementById('apiInput');
-       const loginButton = document.getElementById('loginButton');
-       const logoutButton = document.getElementById('logoutButton');
-
-
-       let isGenerating = false;
-
-
-       // --- Utility Functions ---
-      
-       // Function to toggle UI visibility based on API key status
-       function updateUI() {
-           if (apiKey) {
-               loginSection.classList.add('hidden');
-               appSection.classList.remove('hidden');
-               logoutButton.classList.remove('hidden');
-           } else {
-               loginSection.classList.remove('hidden');
-               appSection.classList.add('hidden');
-               logoutButton.classList.add('hidden');
-           }
-       }
-      
-       // Function to save the API key
-       function saveApiKey(key) {
-           apiKey = key;
-           localStorage.setItem(API_KEY_STORE_KEY, key);
-           updateUI();
-       }
-
-
-       // Function to handle logout
-       function logoutUser() {
-           apiKey = "";
-           localStorage.removeItem(API_KEY_STORE_KEY);
-           apiInput.value = ""; // Clear input field
-           updateUI();
-           alert('Logout အောင်မြင်ပါသည်။');
-       }
-       window.logoutUser = logoutUser;
-
-
-       function copyToClipboard(textToCopy, buttonElement) {
-           // 1. Create a temporary textarea
-           const tempInput = document.createElement('textarea');
-          
-           // 2. Set its value to the text to copy (textToCopy is already formatted/escaped for content)
-           tempInput.value = textToCopy;
-          
-           // 3. Make it invisible and append it to the body
-           tempInput.style.position = 'absolute';
-           tempInput.style.left = '-9999px';
-           document.body.appendChild(tempInput);
-          
-           // 4. Select the content
-           tempInput.select();
-           tempInput.setSelectionRange(0, 99999); // For mobile devices
-
-
-           // 5. Execute copy command
-           let success = false;
-           try {
-               success = document.execCommand('copy');
-           } catch (err) {
-               console.error('Copy failed:', err);
-           }
-          
-           // 6. Remove the temporary element
-           document.body.removeChild(tempInput);
-
-
-           // 7. Provide visual feedback
-           if (success) {
-               const originalHtml = buttonElement.innerHTML;
-               buttonElement.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-               buttonElement.classList.add('bg-green-600', 'hover:bg-green-700');
-               buttonElement.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>ကူးယူပြီး!`;
-               setTimeout(() => {
-                   buttonElement.classList.remove('bg-green-600', 'hover:bg-green-700');
-                   buttonElement.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                   buttonElement.innerHTML = originalHtml;
-               }, 2000);
-           } else {
-               const originalHtml = buttonElement.innerHTML;
-               buttonElement.innerHTML = 'ကူးယူ၍ မရပါ။';
-               setTimeout(() => { buttonElement.innerHTML = originalHtml; }, 2000);
-           }
-       }
-       window.copyToClipboard = copyToClipboard;
-
-
-       function openModal(id) {
-           document.getElementById(id).classList.remove('hidden');
-           document.getElementById(id).classList.add('flex');
-       }
-
-
-       function closeModal(id) {
-           document.getElementById(id).classList.remove('flex');
-           document.getElementById(id).classList.add('hidden');
-       }
-       window.openModal = openModal;
-       window.closeModal = closeModal;
-      
-       // Helper for API retries with exponential backoff
-       async function fetchWithRetry(payload, maxRetries = 3) {
-           if (!apiKey) {
-               // If API key is missing, throw an error immediately to stop execution
-               throw new Error("API Key is missing. Please log in first.");
-           }
-          
-           const fullUrl = apiUrl + apiKey;
-           let delay = 1000;
-           for (let i = 0; i < maxRetries; i++) {
-               try {
-                   const response = await fetch(fullUrl, {
-                       method: 'POST',
-                       headers: { 'Content-Type': 'application/json' },
-                       body: JSON.stringify(payload)
-                   });
-                   if (!response.ok) {
-                        // Throw to trigger retry if non-200 status (e.g., 429, 500, or invalid key)
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                   }
-                   const result = await response.json();
-                   return result;
-               } catch (error) {
-                   if (i < maxRetries - 1) {
-                       console.log(`API request failed, retrying in ${delay / 1000}s... Attempt ${i + 1}`);
-                       await new Promise(resolve => setTimeout(resolve, delay));
-                       delay *= 2;
-                   } else {
-                       console.error('Final API request attempt failed.');
-                       throw error;
-                   }
-               }
-           }
-       }
-
-
-       // --- Translation Function (Handles Burmese or other non-English input) ---
-       async function translateKeyword(inputKeyword) {
-           const systemPrompt = "You are a Burmese to English commercial translation expert for digital marketing. Analyze the user's input. If the input is primarily in Burmese or another non-English language, translate it into a single, high-impact, commercially appropriate English keyword or short phrase suitable for Facebook ad targeting. If the input is already in English, simply return the original input. The output MUST be a JSON object containing the 'translated_keyword' field. Do not include any extra text.";
-          
-           const userQuery = `Original keyword: ${inputKeyword}`;
-          
-           const payload = {
-               contents: [{ parts: [{ text: userQuery }] }],
-               systemInstruction: { parts: [{ text: systemPrompt }] },
-               generationConfig: {
-                   responseMimeType: "application/json",
-                   responseSchema: {
-                       type: "OBJECT",
-                       properties: {
-                           "translated_keyword": { "type": "STRING", "description": "The commercially appropriate English keyword or the original English keyword if no translation was needed." }
-                       }
-                   }
-               }
-           };
-          
-           try {
-               const result = await fetchWithRetry(payload);
-               const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
-               if (jsonString) {
-                   const parsedJson = JSON.parse(jsonString);
-                   return parsedJson.translated_keyword.trim();
-               }
-           } catch (error) {
-               console.error('Translation failed, using original keyword as fallback:', error);
-               // Fallback: If translation fails, use it as is.
-               return inputKeyword;
-           }
-           return inputKeyword;
-       }
-
-
-       // --- AI Generation Function (Performs Data Research and Analysis) ---
-       async function generateSpecificAudience(keyword, region, goal) {
-           const regionName = regionSelect.options[regionSelect.selectedIndex].text;
-          
-           const systemPrompt = `You are an expert Facebook Ad Strategist specializing in the Myanmar market. Your task is to generate highly specific and commercially relevant target audience suggestions (Interests, Behaviors, and Hashtags) for a given product/service, region, and ad goal. The output MUST be a JSON OBJECT as defined in the schema. All lists must contain at least 15 relevant, comma-separated entries, and 'behaviors' must contain at least 10 entries. For hashtags, provide two separate lists: one in English and one in Burmese, relevant to the product and the Myanmar market. STRICTLY adhere to the JSON format. The generated interests and behaviors MUST be suitable for actual Facebook targeting options and highly relevant to the product.`;
-          
-           const userQuery = `Generate highly specific and commercially viable audience targeting data for a business selling "${keyword}" in the region of "${regionName}" with the ad goal of "${goal}". Focus on high-intent buyers/users.`;
-
-
-           const payload = {
-               contents: [{ parts: [{ text: userQuery }] }],
-               systemInstruction: { parts: [{ text: systemPrompt }] },
-               generationConfig: {
-                   responseMimeType: "application/json",
-                   responseSchema: {
-                       type: "OBJECT",
-                       properties: {
-                           "interests": { "type": "STRING", "description": "Comma-separated list of 15+ highly specific English Facebook targeting interests for this keyword and region." },
-                           "behaviors": { "type": "STRING", "description": "Comma-separated list of 10+ highly specific English Facebook targeting behaviors for this keyword and region (e.g., Engaged Shoppers, High Value Goods Buyers, iPhone Users)." },
-                           "english_hashtags": { "type": "STRING", "description": "A list of 15+ trending and popular English hashtags, comma-separated, relevant to this product and region." },
-                           "myanmar_hashtags": { "type": "STRING", "description": "A list of 15+ trending and popular Burmese hashtags, comma-separated, relevant to this product and the Myanmar market." }
-                       }
-                   }
-               }
-           };
-          
-           try {
-               const result = await fetchWithRetry(payload);
-               const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
-              
-               if (jsonString) {
-                   const parsedJson = JSON.parse(jsonString);
-                  
-                   // Add a demographic suggestion based on the context
-                   let demographics;
-                   if (region === 'myanmar') {
-                       demographics = `Age 20-45, Located in Major Cities (Yangon, Mandalay, Naypyitaw), Primary device is Mobile (Android/iOS), Specific interests related to "${keyword}" (e.g., if it's high-end, target 'High Income').`;
-                   } else if (region === 'thailand') {
-                       demographics = `Age 25-45, Residing in Bangkok/Major Tourist Hubs, Interested in Thai/International culture, High Purchasing Power.`;
-                   } else if (region === 'uae') {
-                        demographics = `Age 30-55, Expats (Western, Arab, Indian), High Net Worth, Residents of Dubai/Abu Dhabi, Managerial/Executive Job Titles.`;
-                   } else {
-                       demographics = genericAudience.demographics;
-                   }
-
-
-                   return {
-                       demographics: demographics,
-                       interests: parsedJson.interests,
-                       behaviors: parsedJson.behaviors,
-                       english_hashtags: parsedJson.english_hashtags || genericAudience.english_hashtags,
-                       myanmar_hashtags: parsedJson.myanmar_hashtags || genericAudience.myanmar_hashtags,
-                       isDynamic: true
-                   };
-
-
-               } else {
-                   console.error('Gemini API returned an invalid structure or empty content.');
-                   return null;
-               }
-           } catch (error) {
-               console.error('API call failed or parsing error (could not retrieve specific data):', error);
-               return null;
-           }
-       }
-      
-       // --- Estimation Calculation & Rendering Logic ---
-       function calculateEstimate(budget, days, option, goal) {
-           const totalBudget = (option === 'daily') ? budget * days : budget;
-           let goalMultiplier;
-           switch (goal) {
-               case 'engagement': goalMultiplier = 1.0; break;
-               case 'messages_and_sales': goalMultiplier = 2.0; break;
-               case 'traffic':
-               case 'video_views': goalMultiplier = 1.2; break;
-               case 'lead_generation': goalMultiplier = 1.5; break;
-               case 'conversions': goalMultiplier = 2.0; break;
-               default: goalMultiplier = 1.0;
-           }
-
-
-           const baseReachLow = 500;
-           const baseReachHigh = 1500;
-
-
-           const estimatedReachLow = Math.round((totalBudget * baseReachLow) / goalMultiplier);
-           const estimatedReachHigh = Math.round((totalBudget * baseReachHigh) / goalMultiplier);
-          
-           const conversionRateLow = 0.001;
-           const conversionRateHigh = 0.003;
-          
-           let estimatedActionsLow = Math.round(estimatedReachLow * conversionRateLow);
-           let estimatedActionsHigh = Math.round(estimatedReachHigh * conversionRateHigh);
-          
-           if (totalBudget >= 10 && estimatedActionsLow === 0) estimatedActionsLow = 1;
-
-
-           return {
-               reach: { low: estimatedReachLow, high: estimatedReachHigh },
-               actions: { low: estimatedActionsLow, high: estimatedActionsHigh },
-               goalText: goal
-           };
-       }
-      
-       function renderEstimation(estimate, totalBudget) {
-           const container = document.getElementById('estimationContainer');
-          
-           let actionLabel;
-           switch (estimate.goalText) {
-               case 'engagement': actionLabel = 'Estimated Engagements:'; break;
-               case 'messages_and_sales': actionLabel = 'Estimated Actions (Messages/Sales):'; break;
-               case 'traffic': actionLabel = 'Estimated Link Clicks:'; break;
-               case 'conversions': actionLabel = 'Estimated Conversions:'; break;
-               case 'lead_generation': actionLabel = 'Estimated Leads:'; break;
-               case 'video_views': actionLabel = 'Estimated Video Views:'; break;
-               default: actionLabel = 'Estimated Actions:';
-           }
-
-
-           container.innerHTML = `
-               <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-md">
-                   <h3 class="flex items-center text-xl font-bold text-gray-800 mb-3">
-                       <span class="text-2xl font-extrabold mr-2 text-blue-600">4.1</span> ခန့်မှန်းရလဒ်များ
-                   </h3>
-                   <p class="text-sm font-medium text-gray-600 mb-4">Total Budget: <span class="text-blue-700 font-bold">$${totalBudget.toLocaleString()} USD</span></p>
-                   <div class="space-y-3">
-                       <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-md result-card">
-                           <span class="text-sm font-medium text-gray-600 mb-1 sm:mb-0">Estimated Reach:</span>
-                           <span class="text-lg font-extrabold text-blue-700">${estimate.reach.low.toLocaleString()} - ${estimate.reach.high.toLocaleString()} People</span>
-                       </div>
-                       <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-md result-card">
-                           <span class="text-sm font-medium text-gray-600 mb-1 sm:mb-0">${actionLabel}</span>
-                           <span class="text-lg font-extrabold text-green-700">${estimate.actions.low.toLocaleString()} - ${estimate.actions.high.toLocaleString()} Actions</span>
-                       </div>
-                   </div>
-               </div>
-           `;
-       }
-
-
-       function renderAudienceResults(audienceData, keyword, region) {
-           const container = document.getElementById('resultsContainer');
-          
-           // Helper function to create a copy button block
-           const createCopyBlock = (title, content, id) => {
-               return `
-                   <div class="mb-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200 shadow-sm result-card">
-                       <h4 class="text-md font-bold text-indigo-800 mb-2">${title}</h4>
-                       <p id="${id}" class="text-gray-700 text-sm break-words mb-3 whitespace-pre-wrap">${content}</p>
-                       <button
-                           onclick="copyToClipboard(document.getElementById('${id}').innerText, this)"
-                           class="mt-2 text-xs font-semibold py-1 px-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-150 flex items-center"
-                       >
-                           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2m-4-2l-4 4m0 0l-4-4m4 4V5"></path></svg>
-                           ကူးယူရန်
-                       </button>
-                   </div>
-               `;
-           };
-
-
-           container.innerHTML = `
-               <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xl">
-                   <h3 class="flex items-center text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-                       <span class="text-2xl font-extrabold mr-2 text-blue-600">4.2</span>
-                       ${audienceData.isDynamic ? 'AI-Generated Audience (✅ High Specificity)' : 'Generic Fallback Audience (⚠️ Low Specificity)'}
-                   </h3>
-                   <p class="text-sm italic text-gray-600 mb-4">
-                       Targeting Keyword: <span class="font-semibold text-blue-800">${keyword}</span> in ${regionSelect.options[regionSelect.selectedIndex].text}
-                   </p>
-
-
-                   ${createCopyBlock('Demographics (လူဦးရေဆိုင်ရာ)', audienceData.demographics, 'demographicsContent')}
-                   ${createCopyBlock('Interests (စိတ်ဝင်စားမှုများ) - English', audienceData.interests, 'interestsContent')}
-                   ${createCopyBlock('Behaviors (အပြုအမူများ)', audienceData.behaviors, 'behaviorsContent')}
-                  
-                   <div class="mt-6 border-t pt-4">
-                       <h4 class="text-lg font-bold text-gray-800 mb-3">Suggested Hashtags (စာတမ်းတွဲများ)</h4>
-                       ${createCopyBlock('English Hashtags', audienceData.english_hashtags.split(',').map(h => h.trim()).join(' '), 'englishHashtagsContent')}
-                       ${createCopyBlock('မြန်မာ Hashtags', audienceData.myanmar_hashtags.split(',').map(h => h.trim()).join(' '), 'myanmarHashtagsContent')}
-                   </div>
-               </div>
-           `;
-       }
-
-
-       async function showPolicySummary() {
-           openModal('policyModal');
-           policyContent.innerHTML = `
-               <div class="text-center py-10">
-                   <svg id="policyLoadingSpinner" class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                   <p class="text-gray-600">Policy အချက်အလက်များကို ရှာဖွေနေပါသည်... (ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေခြင်း)</p>
-               </div>
-           `;
-           policySources.classList.add('hidden');
-
-
-           // System prompt for grounding call
-           const systemPrompt = `You are a legal policy analyst. Provide a summary of the most critical current Facebook/Meta Ad Policies (2025 Outlook, focusing on Prohibited Content, Restricted Content, and Policy Evasion). Write the summary in Burmese (Myanmar language) using clear, direct academic style. The output must be formatted using simple HTML tags (like <h4>, <ul>, <p>, <li>) for structure, suitable for direct injection into a div.`;
-          
-           const userQuery = "What are the key Facebook (Meta) Ad Policies for 2025, specifically regarding prohibited and restricted content?";
-
-
-           const payload = {
-               contents: [{ parts: [{ text: userQuery }] }],
-               tools: [{ "google_search": {} }], // Use Google Search for grounding
-               systemInstruction: { parts: [{ text: systemPrompt }] },
-           };
-          
-           try {
-               const result = await fetchWithRetry(payload);
-               const candidate = result.candidates?.[0];
-
-
-               if (candidate && candidate.content?.parts?.[0]?.text) {
-                   const text = candidate.content.parts[0].text;
-                   policyContent.innerHTML = `<div class="policy-text">${text}</div>`;
-
-
-                   let sources = [];
-                   const groundingMetadata = candidate.groundingMetadata;
-                   if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                       sources = groundingMetadata.groundingAttributions
-                           .map(attribution => ({
-                               uri: attribution.web?.uri,
-                               title: attribution.web?.title,
-                           }))
-                           .filter(source => source.uri && source.title);
-                   }
-                  
-                   if (sources.length > 0) {
-                       policySources.innerHTML = 'အချက်အလက်ရင်းမြစ်များ (Sources): ' + sources.map(s => `<a href="${s.uri}" target="_blank" class="text-blue-600 hover:underline">${s.title}</a>`).join(' | ');
-                       policySources.classList.remove('hidden');
-                   } else {
-                       policySources.classList.add('hidden');
-                   }
-               } else {
-                   policyContent.innerHTML = FALLBACK_POLICY_CONTENT_MM;
-               }
-           } catch (error) {
-               console.error('Policy API call failed, using fallback.', error);
-               policyContent.innerHTML = FALLBACK_POLICY_CONTENT_MM;
-           }
-       }
-       window.showPolicySummary = showPolicySummary;
-
-
-       // --- Event Listeners ---
-      
-       // Login Button Listener
-       loginButton.addEventListener('click', () => {
-           const key = apiInput.value.trim();
-           if (key.length < 30) { // Basic key length check
-               alert('API Key သည် အလွန်တိုတောင်းပါသည်။ မှန်ကန်သော Gemini API Key ကို ထည့်သွင်းပေးပါ။');
-               return;
-           }
-           saveApiKey(key);
-       });
-
-
-       // Main Suggest Button Listener
-       suggestButton.addEventListener('click', async () => {
-           if (isGenerating) return;
-           if (!apiKey) {
-               alert('ကျေးဇူးပြု၍ စတင်အသုံးပြုရန် Gemini API Key ဖြင့် လော့ဂ်အင်ဝင်ပေးပါ။');
-               return;
-           }
-
-
-           const keyword = keywordInput.value.trim();
-           const goal = goalSelect.value;
-           const region = regionSelect.value;
-           const budget = parseFloat(budgetAmount.value);
-           const option = budgetOption.value;
-           const days = parseInt(adDays.value);
-
-
-           // 1. Input Validation
-           if (!keyword || keyword.length < 3) {
-               alert('လုပ်ငန်းအမျိုးအစား Keyword ကို အနည်းဆုံး ၃ လုံး ရိုက်ထည့်ပါ။');
-               return;
-           }
-           if (isNaN(budget) || budget < 5) {
-               alert('Budget Amount ကို အနည်းဆုံး $5 သတ်မှတ်ပေးပါ။');
-               return;
-           }
-           if (isNaN(days) || days < 1) {
-               alert('Days (ရက်) ကို အနည်းဆုံး ၁ ရက် သတ်မှတ်ပေးပါ။');
-               return;
-           }
-
-
-           const totalBudget = (option === 'daily') ? budget * days : budget;
-
-
-           // Start loading state
-           isGenerating = true;
-           suggestButton.disabled = true;
-           loadingSpinner.classList.remove('hidden');
-           buttonText.textContent = 'Audience Research & ခန့်မှန်းချက်များ ဖန်တီးနေသည်...';
-           resultsContainer.innerHTML = `<p class="text-center text-blue-600 py-8 animate-pulse">🎯 Target Audience ကို AI ဖြင့် စိစစ် ရှာဖွေနေပါသည်...</p>`;
-           document.getElementById('estimationContainer').innerHTML = '';
-
-
-
-
-           try {
-               // 2. Translate Keyword (if necessary)
-               const translatedKeyword = await translateKeyword(keyword);
-              
-               // 3. Generate Specific Audience Data using the translated keyword
-               let audienceData = await generateSpecificAudience(translatedKeyword, region, goal);
-              
-               // 4. Use generic fallback if API failed or returned null (with a flag)
-               if (!audienceData) {
-                   audienceData = { ...genericAudience, isDynamic: false };
-               }
-
-
-               // 5. Calculate Estimation
-               const estimate = calculateEstimate(budget, days, option, goal);
-
-
-               // 6. Render Results
-               renderEstimation(estimate, totalBudget);
-               renderAudienceResults(audienceData, translatedKeyword, region);
-               document.getElementById('initialMessage').classList.add('hidden'); // Hide initial message
-              
-           } catch (error) {
-               console.error("Main generation process failed:", error);
-              
-               let errorMessage = `❌ Error: Audience အချက်အလက်များ ဖန်တီး၍ မရပါ။ ကျေးဇူးပြု၍ နောက်တစ်ကြိမ် ကြိုးစားပါ။`;
-               if (error.message.includes('API Key is missing') || error.message.includes('400')) {
-                    errorMessage = `❌ Error: သင်၏ API Key သည် မှားယွင်းနေပါသည်။ Logout ပြန်လုပ်ပြီး မှန်ကန်သော Key ဖြင့် ပြန်လည်ဝင်ရောက်ပါ။`;
-               }
-
-
-               resultsContainer.innerHTML = `<p class="text-center text-red-600 py-8">${errorMessage}</p>`;
-               document.getElementById('estimationContainer').innerHTML = `<p class="text-center text-red-600 py-2">ခန့်မှန်းချက်တွက်ချက်မှု မအောင်မြင်ပါ။</p>`;
-           } finally {
-               // End loading state
-               isGenerating = false;
-               suggestButton.disabled = false;
-               loadingSpinner.classList.add('hidden');
-               buttonText.textContent = 'Audience အကြံပြုချက်များ & ရလဒ် ခန့်မှန်းရန်';
-           }
-       });
-      
-       // Initial setup on load
-       document.addEventListener('DOMContentLoaded', () => {
-            budgetAmount.value = '5';
-            adDays.value = '7';
-            apiInput.value = apiKey; // Show key if it exists
-            updateUI(); // Check key and show/hide sections
-       });
-
-
-   </script>
+    
+    <!-- ========================================================================================= -->
+    <!-- HTML Section (Structure) -->
+    <!-- ========================================================================================= -->
+    
+    <!-- Main Application Card -->
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-primary overflow-hidden">
+        
+        <!-- Header Section -->
+        <div class="gradient-fb p-6 text-white text-center rounded-t-3xl flex flex-col items-center relative">
+            
+            <!-- Logout Button (Hidden initially) -->
+            <button 
+                id="logoutButton" 
+                class="absolute top-4 right-4 text-sm font-semibold py-1 px-3 bg-red-500 rounded-full hover:bg-red-600 transition duration-200 hidden"
+                onclick="logoutUser()"
+            >
+                Logout
+            </button>
+
+            <!-- Facebook 'f' Icon (Canonical SVG for visibility) -->
+            <svg class="w-10 h-10 mb-2" fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 5.99 4.388 10.954 10.125 11.854V15.467H7.078V12h3.047V9.35c0-3.007 1.792-4.661 4.533-4.661 1.313 0 2.686.234 2.686.234v2.953H15.83c-1.491 0-1.956.925-1.956 1.874V12h3.328l-.532 3.467h-2.796v6.387C19.612 22.954 24 17.99 24 12 24 5.373 18.627 0 12 0z"/>
+            </svg>
+            
+            <!-- Header Text -->
+            <h1 class="text-4xl font-extrabold mb-1">Digimetric</h1>
+            <p class="text-lg opacity-100 font-semibold mb-1">Facebook Boosting Target Audience Builder</p>
+            
+            <p class="text-sm opacity-90 font-medium">AI-Powered Targeting Research စနစ်ပါဝင်ပြီးဖြစ်သည်။</p>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- 0. LOGIN SECTION (API KEY INPUT) -->
+        <!-- ============================================== -->
+        <div id="loginSection" class="p-6">
+            <div class="mb-5 p-5 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-md">
+                <h3 class="text-xl font-bold text-yellow-800 mb-3 flex items-center">
+                    <span class="mr-2 text-2xl">🔑</span> Gemini API Key ဖြင့် ဝင်ရောက်ပါ
+                </h3>
+                <p class="text-sm font-medium text-gray-700 mb-3">
+                    ကျေးဇူးပြု၍ သင့်၏ **Gemini API Key** ကို ထည့်သွင်းပါ။ Key သည် သင့်၏ Local Browser တွင်သာ သိမ်းဆည်းထားမည်ဖြစ်ပါသည်။
+                </p>
+                <input 
+                    type="text" 
+                    id="apiInput" 
+                    placeholder="YOUR_GEMINI_API_KEY_HERE" 
+                    class="w-full p-3 border-2 border-yellow-400 rounded-xl focus:ring-yellow-600 focus:border-yellow-600 transition duration-200 shadow-inner"
+                >
+                <button 
+                    id="loginButton" 
+                    class="w-full mt-4 p-3 bg-yellow-600 text-white font-extrabold text-lg rounded-xl hover:bg-yellow-700 transition duration-200 shadow-lg shadow-yellow-300 active:scale-[0.98] transform"
+                >
+                    API Key သိမ်းဆည်း၍ စတင်အသုံးပြုရန်
+                </button>
+            </div>
+        </div>
+        <!-- ============================================== -->
+        <!-- 1. MAIN APPLICATION SECTION -->
+        <!-- ============================================== -->
+        <div id="appSection" class="hidden">
+            <div class="p-6 pt-0">
+                
+                <!-- 1. Goal Setting Section -->
+                <div class="mb-5">
+                    <label for="goalSelect" class="block text-lg font-bold text-gray-700 mb-2">1. Facebook Ad Goal ရွေးချယ်ပါ:</label>
+                    <select 
+                        id="goalSelect" 
+                        class="w-full p-3 border-2 border-gray-300 rounded-xl bg-white focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
+                    >
+                        <option value="engagement" selected>Engagement (ထိတွေ့မှု)</option>
+                        <option value="messages_and_sales">Messages & Sales (မက်ဆေ့ခ်ျနှင့် အရောင်း)</option>
+                        <option value="traffic">Traffic (၀က်ဘ်ဆိုဒ် အသွားအလာ)</option>
+                        <option value="conversions">Conversions (ပြောင်းလဲမှု)</option> 
+                        <option value="lead_generation">Lead Generation (ဦးဆောင်သူ စုဆောင်းမှု)</option>
+                        <option value="video_views">Video Views (ဗီဒီယို ကြည့်ရှုမှု)</option>
+                    </select>
+                </div>
+                <!-- End Goal Setting Section -->
+
+                <!-- 1.5 Region Selection -->
+                <div class="mb-5">
+                    <label for="regionSelect" class="block text-lg font-bold text-gray-700 mb-2">1.5 Target Region ရွေးချယ်ပါ:</label>
+                    <select 
+                        id="regionSelect" 
+                        class="w-full p-3 border-2 border-gray-300 rounded-xl bg-white focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
+                    >
+                        <option value="myanmar" selected>Myanmar (မြန်မာ)</option>
+                        <option value="thailand">Thailand (ထိုင်း)</option>
+                        <option value="uae">UAE (ယူအေအီး)</option>
+                    </select>
+                </div>
+                <!-- End Region Selection -->
+
+
+                <!-- 2. Keyword Input -->
+                <div class="mb-5">
+                    <label for="keywordInput" class="block text-lg font-bold text-gray-700 mb-2">2. လုပ်ငန်းအမျိုးအစား Keyword (မြန်မာ သို့မဟုတ် English):</label>
+                    <input 
+                        type="text" 
+                        id="keywordInput" 
+                        placeholder="Keyword ကိုရိုက်ထည့်ပါ (ဥပမာ: အမျိုးသမီးဝတ်အထည် သို့မဟုတ် Fashion)..." 
+                        class="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-200 shadow-inner"
+                    >
+                </div>
+                <!-- End Keyword Input -->
+                
+                <!-- 3. Budget Setting Section (Icon Removed) -->
+                <div class="mb-5 p-5 bg-green-50 rounded-2xl border border-green-200 shadow-md">
+                    <label class="block text-lg font-bold text-gray-700 mb-3">
+                        3. Budget သတ်မှတ်ပါ:
+                    </label>
+                    
+                    <!-- Budget Amount -->
+                    <div class="mb-4">
+                        <label for="budgetAmount" class="block text-sm font-medium text-gray-600 mb-1">Budget Amount (USD $): (Minimum $5)</label>
+                        <input 
+                            type="number" 
+                            id="budgetAmount" 
+                            value="5" 
+                            min="5" 
+                            class="w-full p-3 border-2 border-green-400 rounded-xl focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
+                        >
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <!-- Option -->
+                        <div class="flex-1">
+                            <label for="budgetOption" class="block text-sm font-medium text-gray-600 mb-1">Option:</label>
+                            <select 
+                                id="budgetOption" 
+                                class="w-full p-3 border-2 border-green-400 rounded-xl bg-white focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
+                            >
+                                <option value="daily">Daily</option>
+                                <option value="lifetime">Lifetime</option>
+                            </select>
+                        </div>
+
+                        <!-- Days -->
+                        <div class="flex-1">
+                            <label for="adDays" class="block text-sm font-medium text-gray-600 mb-1">Days (ရက်):</label>
+                            <input 
+                                type="number" 
+                                id="adDays" 
+                                value="7" 
+                                min="1" 
+                                class="w-full p-3 border-2 border-green-400 rounded-xl focus:ring-green-600 focus:border-green-600 transition duration-200 shadow-inner"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <!-- End Budget Setting Section -->
+
+                <button 
+                    id="suggestButton" 
+                    class="w-full mt-6 p-4 gradient-fb text-white font-extrabold text-lg rounded-xl hover:opacity-90 transition duration-200 shadow-lg shadow-blue-400 active:scale-[0.98] transform flex items-center justify-center"
+                >
+                    <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span id="buttonText">Audience အကြံပြုချက်များ & ရလဒ် ခန့်မှန်းရန်</span>
+                </button>
+            </div>
+
+            <!-- Result Section (Including Policy Button now) -->
+            <div class="p-6 pt-0">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4" id="resultTitle">4. ရလဒ်များ:</h2>
+                
+                <!-- Estimation Container (4.1) -->
+                <div id="estimationContainer" class="mb-6">
+                    <p class="text-gray-500 italic text-center py-4" id="initialEstimationMessage">ခန့်မှန်းချက် ဒီနေရာမှာပေါ်လာပါမယ်။</p>
+                </div>
+                
+                <!-- Audience Results Container (4.2) -->
+                <div id="resultsContainer" class="min-h-24">
+                    <p class="text-gray-500 italic text-center py-4" id="initialMessage">အကြံပြုချက်များ ဒီနေရာမှာပေါ်လာပါမယ်။</p>
+                    <!-- Demographics/Interests/Behaviors/Hashtags will be injected here -->
+                </div>
+                
+                <!-- POLICY BUTTON - MOVED INSIDE RESULTS SECTION -->
+                <button 
+                    id="policyButton" 
+                    class="w-full mt-6 p-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition duration-200 shadow-lg shadow-red-300 active:scale-[0.98] transform flex items-center justify-center"
+                    onclick="showPolicySummary()"
+                >
+                    <span class="text-xl mr-2">⚠️</span>
+                    Facebook AD Policy များဖတ်ရန် (2025 Policy Outlook)
+                </button>
+
+            </div>
+        </div>
+    </div>
+    
+    <!-- POLICY MODAL -->
+    <div id="policyModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-4 gradient-fb text-white flex justify-between items-center">
+                <h3 class="text-xl font-bold">Facebook AD Policy: 2025 Outlook</h3>
+                <button onclick="closeModal('policyModal')" class="text-white hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="policyContent" class="p-6 overflow-y-auto flex-grow policy-text">
+                <!-- Content will be loaded here -->
+                <div class="text-center py-10">
+                    <svg id="policyLoadingSpinner" class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <p class="text-gray-600">Policy အချက်အလက်များကို ရှာဖွေနေပါသည်... (ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေခြင်း)</p>
+                </div>
+            </div>
+            <div id="policySources" class="p-4 border-t text-xs text-gray-500 hidden">
+                <!-- Sources will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================================= -->
+    <!-- JavaScript Section (Logic) -->
+    <!-- ========================================================================================= -->
+    <script>
+        // --- API Configuration ---
+        const API_KEY_STORE_KEY = 'geminiApiKey';
+        // Initialize apiKey from local storage. If not found, it remains an empty string.
+        let apiKey = localStorage.getItem(API_KEY_STORE_KEY) || ""; 
+        let apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
+        
+        // --- Audience Data (Static Fallback data) ---
+        const genericAudience = {
+            demographics: "Age 20-55, All Genders, Located in Major Cities (Yangon/Mandalay), Smartphone Users, People with High Digital Activity",
+            interests: "Online Shopping, Local Businesses, Discounts & Offers, Entertainment (TV Shows/Movies), Personal Finance, E-commerce, Lifestyle, News & Media, Technology, Travel, Food & Drink, Fitness, Home Decor, Automotive, Education, Gaming, Music",
+            behaviors: "Engagement Shoppers (6 months), Mobile Device Users (Any), People who click 'Shop Now', Digital Activities (General), Online Buyers, Frequent Travelers, Interested in High-Value Goods, Video Viewers (30 days)",
+            english_hashtags: "#OnlineShopping,#TodaysTrend,#Community,#InstaDaily,#Ecommerce,#DigitalMarketing,#BusinessGoals,#TrendingNow,#DailyLife,#Deals,#Offers,#Lifestyle,#ShopOnline,#TechNews,#TravelGoals,#Foodie,#FitnessMotivation,#HomeDecor,#Gaming,#MusicLover,#Newstoday",
+            myanmar_hashtags: "#အွန်လိုင်းစျေး,#ခေတ်စားနေသည်,#မြန်မာပြည်,#စျေးဝယ်,#နည်းပညာ,#ဘဝပုံစံ,#နေ့စဉ်မှတ်တမ်း,#ခရီးသွား,#ကျန်းမာရေး,#ပျော်ရွှင်ခြင်း,#အလှအပရေးရာ,#အိမ်တွင်းအလှဆင်,#စားသောက်ဆိုင်,#ကားဝါသနာရှင်,#ပညာရေး",
+        };
+
+        // --- POLICY FALLBACK CONTENT (New addition for robustness) ---
+        const FALLBACK_POLICY_CONTENT_MM = `
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg mb-4 text-sm font-medium">
+                <p class="font-bold">⚠️ Data ရယူမှု မအောင်မြင်ပါ!</p>
+                <p>ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေရာတွင် ချို့ယွင်းမှုကြောင့် အရေးကြီးသော **Static Policy Summary** ကို ပြသထားပါသည်။</p>
+            </div>
+            <h4>🛑 မဖြစ်မနေ လိုက်နာရမည့် အချက်များ (၂၀၂၅)</h4>
+            <p>Facebook (Meta) ကြော်ငြာမူဝါဒများသည် သုံးစွဲသူများ၏ စိတ်ချယုံကြည်မှုကို ထိန်းသိမ်းရန်နှင့် တရားဥပဒေနှင့်အညီဖြစ်စေရန် ရည်ရွယ်သည်။ အောက်ပါအချက်များကို အထူးဂရုပြုပါ။</p>
+
+            <h4>၁။ တားမြစ်ထားသော အကြောင်းအရာများ (Prohibited Content)</h4>
+            <ul>
+                <li>တရားမဝင်သော ထုတ်ကုန်များ သို့မဟုတ် ဝန်ဆောင်မှုများ (ဥပမာ- မူးယစ်ဆေးဝါး၊ လက်နက်)</li>
+                <li>ခွဲခြားဆက်ဆံမှု၊ အမုန်းစကားများ၊ ခြိမ်းခြောက်မှုများ၊ အကြမ်းဖက်မှု မြှင့်တင်သည့် အကြောင်းအရာများ။</li>
+                <li>စီးကရက်နှင့် ဆက်စပ်ပစ္စည်းများ၊ လုံခြုံမှုမရှိသော ဖြည့်စွက်စာများ (Unsafe Supplements)။</li>
+            </ul>
+
+            <h4>၂။ ကန့်သတ်ထားသော အကြောင်းအရာများ (Restricted Content)</h4>
+            <ul>
+                <li>အရက်၊ ကာစီနိုလောင်းကစား (Gambling)၊ ချိန်းတွေ့ခြင်း ဝန်ဆောင်မှုများ (Dating Services) နှင့် ပတ်သက်သော ကြော်ငါ္နာများသည် သက်ဆိုင်ရာ ဥပဒေများအတိုင်း ခွင့်ပြုချက်နှင့် အသက်ကန့်သတ်ချက်များ လိုအပ်သည်။</li>
+                <li>နိုင်ငံရေး၊ လူမှုရေး သို့မဟုတ် ရွေးကောက်ပွဲဆိုင်ရာ ကြော်ငြာများကို အတည်ပြုလက်မှတ် (Authorization) ယူထားရမည်။</li>
+                <li>ငွေကြေးနှင့်ပတ်သက်သော ထုတ်ကုန်များ (Cryptocurrency စသည်ဖြင့်) ကို ကြော်ငြာရန် ခွင့်ပြုချက် လိုအပ်သည်။</li>
+            </ul>
+
+            <h4>၃။ မူဝါဒ ရှောင်ရှားခြင်းနှင့် အရည်အသွေး (Evasion & Quality)</h4>
+            <ul>
+                <li>ကြော်ငြာစနစ်၏ စိစစ်မှုကို ရှောင်လွှဲရန် ရည်ရွယ်ချက်ဖြင့် စာသား၊ ပုံရိပ် သို့မဟုတ် ဦးတည်ရာနေရာ (Landing Page) များကို ဝှက်ထားခြင်း၊ ပြောင်းလဲခြင်း မပြုရ။</li>
+                <li>ဆင်းသက်ရာ စာမျက်နှာ (Landing Page) သည် ကြော်ငြာပါအကြောင်းအရာနှင့် ကိုက်ညီရမည်။</li>
+                <li>အတုအယောင် သို့မဟုတ် လိမ်လည်လှည့်ဖြားသော အပြုအမူများကို တားမြစ်သည်။</li>
+            </ul>
+        `;
+        // --- END POLICY FALLBACK CONTENT ---
+        
+        // UI Elements
+        const resultsContainer = document.getElementById('resultsContainer');
+        const keywordInput = document.getElementById('keywordInput');
+        const goalSelect = document.getElementById('goalSelect'); 
+        const budgetAmount = document.getElementById('budgetAmount');
+        const budgetOption = document.getElementById('budgetOption');
+        const adDays = document.getElementById('adDays');
+        const regionSelect = document.getElementById('regionSelect'); 
+        const suggestButton = document.getElementById('suggestButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const buttonText = document.getElementById('buttonText');
+        
+        // Policy elements
+        const policyModal = document.getElementById('policyModal');
+        const policyContent = document.getElementById('policyContent');
+        const policySources = document.getElementById('policySources');
+
+        // Login elements
+        const loginSection = document.getElementById('loginSection');
+        const appSection = document.getElementById('appSection');
+        const apiInput = document.getElementById('apiInput');
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+
+        let isGenerating = false; 
+
+        // --- Utility Functions ---
+        
+        // Function to toggle UI visibility based on API key status
+        function updateUI() {
+            if (apiKey) {
+                loginSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                logoutButton.classList.remove('hidden');
+            } else {
+                loginSection.classList.remove('hidden');
+                appSection.classList.add('hidden');
+                logoutButton.classList.add('hidden');
+            }
+        }
+        
+        // Function to save the API key
+        function saveApiKey(key) {
+            apiKey = key;
+            localStorage.setItem(API_KEY_STORE_KEY, key);
+            updateUI();
+        }
+
+        // Function to handle logout
+        function logoutUser() {
+            apiKey = "";
+            localStorage.removeItem(API_KEY_STORE_KEY);
+            apiInput.value = ""; // Clear input field
+            updateUI();
+            alert('Logout အောင်မြင်ပါသည်။');
+        }
+        window.logoutUser = logoutUser;
+
+        function copyToClipboard(textToCopy, buttonElement) {
+            // 1. Create a temporary textarea
+            const tempInput = document.createElement('textarea');
+            
+            // 2. Set its value to the text to copy (textToCopy is already formatted/escaped for content)
+            tempInput.value = textToCopy; 
+            
+            // 3. Make it invisible and append it to the body
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            
+            // 4. Select the content
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+
+            // 5. Execute copy command
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+            
+            // 6. Remove the temporary element
+            document.body.removeChild(tempInput);
+
+            // 7. Provide visual feedback
+            if (success) {
+                const originalHtml = buttonElement.innerHTML;
+                buttonElement.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                buttonElement.classList.add('bg-green-600', 'hover:bg-green-700');
+                buttonElement.innerHTML = `<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>ကူးယူပြီး!`;
+                setTimeout(() => {
+                    buttonElement.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    buttonElement.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    buttonElement.innerHTML = originalHtml;
+                }, 2000);
+            } else {
+                const originalHtml = buttonElement.innerHTML;
+                buttonElement.innerHTML = 'ကူးယူ၍ မရပါ။';
+                setTimeout(() => { buttonElement.innerHTML = originalHtml; }, 2000);
+            }
+        }
+        window.copyToClipboard = copyToClipboard; 
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('flex');
+            document.getElementById(id).classList.add('hidden');
+        }
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        
+        // Helper for API retries with exponential backoff
+        async function fetchWithRetry(payload, maxRetries = 3) {
+            if (!apiKey) {
+                // If API key is missing, throw an error immediately to stop execution
+                throw new Error("API Key is missing. Please log in first.");
+            }
+            
+            const fullUrl = apiUrl + apiKey;
+            let delay = 1000;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(fullUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                         // Throw to trigger retry if non-200 status (e.g., 429, 500, or invalid key)
+                         // We include the status in the error message for better debugging in the main handler
+                         throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    if (i < maxRetries - 1) {
+                        console.log(`API request failed, retrying in ${delay / 1000}s... Attempt ${i + 1}`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; 
+                    } else {
+                        console.error('Final API request attempt failed.');
+                        throw error; // Re-throw the last error
+                    }
+                }
+            }
+        }
+
+        // --- Translation Function (Handles Burmese or other non-English input) ---
+        async function translateKeyword(inputKeyword) {
+            const systemPrompt = "You are a Burmese to English commercial translation expert for digital marketing. Analyze the user's input. If the input is primarily in Burmese or another non-English language, translate it into a single, high-impact, commercially appropriate English keyword or short phrase suitable for Facebook ad targeting. If the input is already in English, simply return the original input. The output MUST be a JSON object containing the 'translated_keyword' field. Do not include any extra text.";
+            
+            const userQuery = `Original keyword: ${inputKeyword}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "translated_keyword": { "type": "STRING", "description": "The commercially appropriate English keyword or the original English keyword if no translation was needed." }
+                        }
+                    }
+                }
+            };
+            
+            try {
+                const result = await fetchWithRetry(payload);
+                const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (jsonString) {
+                    try {
+                        const parsedJson = JSON.parse(jsonString);
+                        return parsedJson.translated_keyword.trim();
+                    } catch (parseError) {
+                        console.error('JSON Parsing failed for translation, using original keyword as fallback:', parseError, 'Raw response:', jsonString);
+                        // Fallback: If parsing fails, use original keyword
+                        return inputKeyword;
+                    }
+                }
+            } catch (error) {
+                console.error('Translation failed due to API error, using original keyword as fallback:', error);
+                // Fallback: If fetchWithRetry failed (network/API key issue), use it as is.
+                return inputKeyword;
+            }
+            return inputKeyword; // Should only hit if jsonString was null/empty for some reason
+        }
+
+        // --- AI Generation Function (Performs Data Research and Analysis) ---
+        async function generateSpecificAudience(keyword, region, goal) {
+            const regionName = regionSelect.options[regionSelect.selectedIndex].text;
+            
+            const systemPrompt = `You are an expert Facebook Ad Strategist specializing in the Myanmar market. Your task is to generate highly specific and commercially relevant target audience suggestions (Interests, Behaviors, and Hashtags) for a given product/service, region, and ad goal. The output MUST be a JSON OBJECT as defined in the schema. All lists must contain at least 15 relevant, comma-separated entries, and 'behaviors' must contain at least 10 entries. For hashtags, provide two separate lists: one in English and one in Burmese, relevant to the product and the Myanmar market. STRICTLY adhere to the JSON format. The generated interests and behaviors MUST be suitable for actual Facebook targeting options and highly relevant to the product.`;
+            
+            const userQuery = `Generate highly specific and commercially viable audience targeting data for a business selling "${keyword}" in the region of "${regionName}" with the ad goal of "${goal}". Focus on high-intent buyers/users.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "interests": { "type": "STRING", "description": "Comma-separated list of 15+ highly specific English Facebook targeting interests for this keyword and region." },
+                            "behaviors": { "type": "STRING", "description": "Comma-separated list of 10+ highly specific English Facebook targeting behaviors for this keyword and region (e.g., Engaged Shoppers, High Value Goods Buyers, iPhone Users)." },
+                            "english_hashtags": { "type": "STRING", "description": "A list of 15+ trending and popular English hashtags, comma-separated, relevant to this product and region." },
+                            "myanmar_hashtags": { "type": "STRING", "description": "A list of 15+ trending and popular Burmese hashtags, comma-separated, relevant to this product and the Myanmar market." }
+                        }
+                    }
+                }
+            };
+            
+            try {
+                const result = await fetchWithRetry(payload);
+                const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (jsonString) {
+                    let parsedJson;
+                    try {
+                        parsedJson = JSON.parse(jsonString);
+                    } catch (parseError) {
+                        console.error('JSON Parsing failed for audience generation, returning null:', parseError, 'Raw response:', jsonString);
+                        // Return null to trigger the generic fallback in the main handler
+                        return null; 
+                    }
+                    
+                    // Add a demographic suggestion based on the context
+                    let demographics;
+                    if (region === 'myanmar') {
+                        demographics = `Age 20-45, Located in Major Cities (Yangon, Mandalay, Naypyitaw), Primary device is Mobile (Android/iOS), Specific interests related to "${keyword}" (e.g., if it's high-end, target 'High Income').`;
+                    } else if (region === 'thailand') {
+                        demographics = `Age 25-45, Residing in Bangkok/Major Tourist Hubs, Interested in Thai/International culture, High Purchasing Power.`;
+                    } else if (region === 'uae') {
+                         demographics = `Age 30-55, Expats (Western, Arab, Indian), High Net Worth, Residents of Dubai/Abu Dhabi, Managerial/Executive Job Titles.`;
+                    } else {
+                        demographics = genericAudience.demographics;
+                    }
+
+                    return {
+                        demographics: demographics,
+                        interests: parsedJson.interests,
+                        behaviors: parsedJson.behaviors,
+                        english_hashtags: parsedJson.english_hashtags || genericAudience.english_hashtags, 
+                        myanmar_hashtags: parsedJson.myanmar_hashtags || genericAudience.myanmar_hashtags, 
+                        isDynamic: true
+                    };
+
+                } else {
+                    console.error('Gemini API returned an invalid structure or empty content.');
+                    return null; 
+                }
+            } catch (error) {
+                console.error('API call failed during specific audience generation:', error);
+                throw error; // Re-throw to be caught by the main handler for key/network issues
+            }
+        }
+        
+        // --- Estimation Calculation & Rendering Logic ---
+        function calculateEstimate(budget, days, option, goal) {
+            const totalBudget = (option === 'daily') ? budget * days : budget;
+            let goalMultiplier;
+            switch (goal) {
+                case 'engagement': goalMultiplier = 1.0; break;
+                case 'messages_and_sales': goalMultiplier = 2.0; break; 
+                case 'traffic':
+                case 'video_views': goalMultiplier = 1.2; break;
+                case 'lead_generation': goalMultiplier = 1.5; break;
+                case 'conversions': goalMultiplier = 2.0; break; 
+                default: goalMultiplier = 1.0;
+            }
+
+            const baseReachLow = 500; 
+            const baseReachHigh = 1500;
+
+            const estimatedReachLow = Math.round((totalBudget * baseReachLow) / goalMultiplier);
+            const estimatedReachHigh = Math.round((totalBudget * baseReachHigh) / goalMultiplier);
+            
+            const conversionRateLow = 0.001;
+            const conversionRateHigh = 0.003;
+            
+            let estimatedActionsLow = Math.round(estimatedReachLow * conversionRateLow);
+            let estimatedActionsHigh = Math.round(estimatedReachHigh * conversionRateHigh);
+            
+            if (totalBudget >= 10 && estimatedActionsLow === 0) estimatedActionsLow = 1;
+
+            return {
+                reach: { low: estimatedReachLow, high: estimatedReachHigh },
+                actions: { low: estimatedActionsLow, high: estimatedActionsHigh },
+                goalText: goal,
+                totalBudget: totalBudget
+            };
+        }
+        
+        function renderEstimation(estimate) {
+            const container = document.getElementById('estimationContainer');
+            // document.getElementById('initialEstimationMessage').classList.add('hidden'); // This line was correctly removed in the previous fix.
+            
+            let actionLabel;
+            switch (estimate.goalText) {
+                case 'engagement': actionLabel = 'Estimated Engagements:'; break;
+                case 'messages_and_sales': actionLabel = 'Estimated Actions (Messages/Sales):'; break; 
+                case 'traffic': actionLabel = 'Estimated Link Clicks:'; break;
+                case 'conversions': actionLabel = 'Estimated Conversions:'; break; 
+                case 'lead_generation': actionLabel = 'Estimated Leads:'; break;
+                case 'video_views': actionLabel = 'Estimated Video Views:'; break;
+                default: actionLabel = 'Estimated Actions:';
+            }
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-md">
+                    <h3 class="flex items-center text-xl font-bold text-gray-800 mb-3">
+                        <span class="text-2xl font-extrabold mr-2 text-blue-600">4.1</span> ခန့်မှန်းရလဒ်များ
+                    </h3>
+                    <p class="text-sm font-medium text-gray-600 mb-4">Total Budget: <span class="text-blue-700 font-bold">$${estimate.totalBudget.toLocaleString()} USD</span></p>
+                    <div class="space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-md result-card">
+                            <span class="text-sm font-medium text-gray-600 mb-1 sm:mb-0">Estimated Reach:</span>
+                            <span class="text-lg font-extrabold text-blue-700">${estimate.reach.low.toLocaleString()} - ${estimate.reach.high.toLocaleString()} People</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 shadow-md result-card">
+                            <span class="text-sm font-medium text-gray-600 mb-1 sm:mb-0">${actionLabel}</span>
+                            <span class="text-lg font-extrabold text-green-700">${estimate.actions.low.toLocaleString()} - ${estimate.actions.high.toLocaleString()} Actions</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAudienceResults(audienceData, keyword, region, apiFailed = false) {
+            const container = document.getElementById('resultsContainer');
+            // FIX START: This line causes the error because 'initialMessage' is removed from the DOM
+            // when resultsContainer.innerHTML is set in the suggestButton handler.
+            // document.getElementById('initialMessage').classList.add('hidden'); // Removed this line
+            // FIX END:
+
+            let headerTitle;
+            if (audienceData.isDynamic) {
+                headerTitle = 'AI-Generated Audience (✅ High Specificity)';
+            } else if (apiFailed) {
+                headerTitle = 'API Error! (❌ Key/Network Issue)';
+            } else {
+                headerTitle = 'Generic Fallback Audience (⚠️ Low Specificity)';
+            }
+            
+            // Helper function to create a copy button block
+            const createCopyBlock = (title, content, id) => {
+                return `
+                    <div class="mb-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200 shadow-sm result-card">
+                        <h4 class="text-md font-bold text-indigo-800 mb-2">${title}</h4>
+                        <p id="${id}" class="text-gray-700 text-sm break-words mb-3 whitespace-pre-wrap">${content}</p>
+                        <button 
+                            onclick="copyToClipboard(document.getElementById('${id}').innerText, this)" 
+                            class="mt-2 text-xs font-semibold py-1 px-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition duration-150 flex items-center"
+                        >
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2m-4-2l-4 4m0 0l-4-4m4 4V5"></path></svg>
+                            ကူးယူရန်
+                        </button>
+                    </div>
+                `;
+            };
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-xl">
+                    <h3 class="flex items-center text-xl font-bold text-gray-800 mb-4 border-b pb-2">
+                        <span class="text-2xl font-extrabold mr-2 text-blue-600">4.2</span>
+                        ${headerTitle}
+                    </h3>
+                    <p class="text-sm italic text-gray-600 mb-4">
+                        Targeting Keyword: <span class="font-semibold text-blue-800">${keyword}</span> in ${regionSelect.options[regionSelect.selectedIndex].text}
+                    </p>
+                    
+                    ${apiFailed ? '' : `
+                        ${createCopyBlock('Demographics (လူဦးရေဆိုင်ရာ)', audienceData.demographics, 'demographicsContent')}
+                        ${createCopyBlock('Interests (စိတ်ဝင်စားမှုများ) - English', audienceData.interests, 'interestsContent')}
+                        ${createCopyBlock('Behaviors (အပြုအမူများ)', audienceData.behaviors, 'behaviorsContent')}
+                        
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">Suggested Hashtags (စာတမ်းတွဲများ)</h4>
+                            ${createCopyBlock('English Hashtags', audienceData.english_hashtags.split(',').map(h => h.trim()).join(' '), 'englishHashtagsContent')}
+                            ${createCopyBlock('မြန်မာ Hashtags', audienceData.myanmar_hashtags.split(',').map(h => h.trim()).join(' '), 'myanmarHashtagsContent')}
+                        </div>
+                    `}
+                    ${apiFailed ? `<p class="text-center text-red-600 py-8 text-lg font-bold">API Key မှားယွင်းနေခြင်း သို့မဟုတ် ကွန်ရက် ချို့ယွင်းမှုကြောင့် Audience အချက်အလက်များကို ရယူနိုင်ခြင်း မရှိပါ။</p>` : ''}
+                </div>
+            `;
+        }
+
+        async function showPolicySummary() {
+            openModal('policyModal');
+            policyContent.innerHTML = `
+                <div class="text-center py-10">
+                    <svg id="policyLoadingSpinner" class="animate-spin h-8 w-8 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <p class="text-gray-600">Policy အချက်အလက်များကို ရှာဖွေနေပါသည်... (ပြင်ပသတင်းအချက်အလက်များကို ရှာဖွေခြင်း)</p>
+                </div>
+            `;
+            policySources.classList.add('hidden');
+
+            // System prompt for grounding call
+            const systemPrompt = `You are a legal policy analyst. Provide a summary of the most critical current Facebook/Meta Ad Policies (2025 Outlook, focusing on Prohibited Content, Restricted Content, and Policy Evasion). Write the summary in Burmese (Myanmar language) using clear, direct academic style. The output must be formatted using simple HTML tags (like <h4>, <ul>, <p>, <li>) for structure, suitable for direct injection into a div.`;
+            
+            const userQuery = "What are the key Facebook (Meta) Ad Policies for 2025, specifically regarding prohibited and restricted content?";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }], // Use Google Search for grounding
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            try {
+                const result = await fetchWithRetry(payload);
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const text = candidate.content.parts[0].text;
+                    policyContent.innerHTML = `<div class="policy-text">${text}</div>`;
+
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title); 
+                    }
+                    
+                    if (sources.length > 0) {
+                        policySources.innerHTML = 'အချက်အလက်ရင်းမြစ်များ (Sources): ' + sources.map(s => `<a href="${s.uri}" target="_blank" class="text-blue-600 hover:underline">${s.title}</a>`).join(' | ');
+                        policySources.classList.remove('hidden');
+                    } else {
+                        policySources.classList.add('hidden');
+                    }
+                } else {
+                    policyContent.innerHTML = FALLBACK_POLICY_CONTENT_MM;
+                }
+            } catch (error) {
+                console.error('Policy API call failed, using fallback.', error);
+                policyContent.innerHTML = FALLBACK_POLICY_CONTENT_MM;
+            }
+        }
+        window.showPolicySummary = showPolicySummary; 
+
+        // --- Event Listeners ---
+        
+        // Login Button Listener
+        loginButton.addEventListener('click', () => {
+            const key = apiInput.value.trim();
+            if (key.length < 30) { // Basic key length check
+                alert('API Key သည် အလွန်တိုတောင်းပါသည်။ မှန်ကန်သော Gemini API Key ကို ထည့်သွင်းပေးပါ။');
+                return;
+            }
+            saveApiKey(key);
+        });
+
+        // Main Suggest Button Listener
+        suggestButton.addEventListener('click', async () => {
+            if (isGenerating) return;
+            if (!apiKey) {
+                alert('ကျေးဇူးပြု၍ စတင်အသုံးပြုရန် Gemini API Key ဖြင့် လော့ဂ်အင်ဝင်ပေးပါ။');
+                return;
+            }
+
+            const keyword = keywordInput.value.trim();
+            const goal = goalSelect.value;
+            const region = regionSelect.value;
+            const budget = parseFloat(budgetAmount.value);
+            const option = budgetOption.value;
+            const days = parseInt(adDays.value);
+
+            // 1. Input Validation
+            if (!keyword || keyword.length < 3) {
+                alert('လုပ်ငန်းအမျိုးအစား Keyword ကို အနည်းဆုံး ၃ လုံး ရိုက်ထည့်ပါ။');
+                return;
+            }
+            if (isNaN(budget) || budget < 5) {
+                alert('Budget Amount ကို အနည်းဆုံး $5 သတ်မှတ်ပေးပါ။');
+                return;
+            }
+            if (isNaN(days) || days < 1) {
+                alert('Days (ရက်) ကို အနည်းဆုံး ၁ ရက် သတ်မှတ်ပေးပါ။');
+                return;
+            }
+
+            // Start loading state
+            isGenerating = true;
+            suggestButton.disabled = true;
+            loadingSpinner.classList.remove('hidden');
+            buttonText.textContent = 'Audience Research & ခန့်မှန်းချက်များ ဖန်တီးနေသည်...';
+            
+            // NOTE: Replacing innerHTML of containers REMOVES the initial placeholder elements
+            resultsContainer.innerHTML = `<p class="text-center text-blue-600 py-8 animate-pulse">🎯 Target Audience ကို AI ဖြင့် စိစစ် ရှာဖွေနေပါသည်...</p>`;
+            document.getElementById('estimationContainer').innerHTML = `<p class="text-center text-blue-600 py-4 animate-pulse">ခန့်မှန်းချက် တွက်ချက်နေသည်...</p>`;
+
+
+            // --- 2. Client-side Estimation (Always calculate first) ---
+            const estimate = calculateEstimate(budget, days, option, goal);
+            renderEstimation(estimate);
+            
+            let translatedKeyword = keyword;
+            let audienceData = null; 
+            let apiFailed = false;
+
+            try {
+                // --- 3. API Calls for Audience Data ---
+                
+                // Translate Keyword
+                translatedKeyword = await translateKeyword(keyword);
+                
+                // Generate Specific Audience Data 
+                audienceData = await generateSpecificAudience(translatedKeyword, region, goal);
+                
+            } catch (error) {
+                apiFailed = true;
+                console.error("API calls failed during audience generation:", error);
+                
+                // Pass the error to the render function to display specific message
+                if (error.message.includes('API Key is missing') || error.message.includes('status: 4')) {
+                    // This is a likely 400 or 403 error (bad key)
+                    renderAudienceResults(null, translatedKeyword, region, true);
+                    return; // Stop further processing if key is definitely bad
+                }
+            }
+
+            // --- 4. Render Audience Results (with generic fallback if data is null) ---
+            if (!audienceData) {
+                // If API fetch was successful but JSON parsing failed, or API returned empty content
+                audienceData = { ...genericAudience, isDynamic: false };
+                // Render the fallback data with a warning
+                renderAudienceResults(audienceData, translatedKeyword, region, false); 
+            } else {
+                // Render the successful dynamic data
+                renderAudienceResults(audienceData, translatedKeyword, region, false);
+            }
+            
+            // End loading state in finally block (redundant but safe way to clean up UI)
+            isGenerating = false;
+            suggestButton.disabled = false;
+            loadingSpinner.classList.add('hidden');
+            buttonText.textContent = 'Audience အကြံပြုချက်များ & ရလဒ် ခန့်မှန်းရန်';
+        });
+        
+        // Initial setup on load
+        document.addEventListener('DOMContentLoaded', () => {
+             budgetAmount.value = '5';
+             adDays.value = '7';
+             apiInput.value = apiKey; // Show key if it exists
+             updateUI(); // Check key and show/hide sections
+        });
+
+    </script>
 </body>
 </html>
