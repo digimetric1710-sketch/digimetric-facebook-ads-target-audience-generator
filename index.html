@@ -90,15 +90,15 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- 0. LOGIN SECTION (API KEY INPUT + PASSWORD) -->
+        <!-- 0. LOGIN SECTION (API KEY INPUT ONLY) -->
         <!-- ============================================== -->
         <div id="loginSection" class="p-6">
             <div class="mb-5 p-5 bg-yellow-50 rounded-2xl border border-yellow-200 shadow-md">
                 <h3 class="text-xl font-bold text-yellow-800 mb-3 flex items-center">
-                    <span class="mr-2 text-2xl">🔑</span> ဝင်ရောက်ရန် (API Key & Password)
+                    <span class="mr-2 text-2xl">🔑</span> ဝင်ရောက်ရန် (API Key)
                 </h3>
                 <p class="text-sm font-medium text-gray-700 mb-3">
-                    ကျေးဇူးပြု၍ သင့်၏ **Gemini API Key** နှင့် **Password** ကို ထည့်သွင်းပါ။
+                    ကျေးဇူးပြု၍ သင့်၏ **Gemini API Key** ကို ထည့်သွင်းပါ။
                 </p>
                 
                 <!-- Gemini API Key Input -->
@@ -109,33 +109,6 @@
                     class="w-full p-3 bg-white border border-gray-300 rounded-lg mb-3"
                 >
                 
-                <!-- Password Input with Toggle (MODIFIED) -->
-                <div class="relative">
-                    <input 
-                        type="password" 
-                        id="passwordInput" 
-                        placeholder="Password"
-                        class="w-full p-3 bg-white border border-gray-300 rounded-lg pr-10 transition duration-150"
-                    >
-                    <button type="button" id="passwordToggle" 
-                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-blue-600 transition duration-150"
-                        aria-label="စကားဝှက် ပြသရန်/ဖျောက်ရန်"
-                    >
-                        <!-- Closed Eye Icon (eye-off) - Default state -->
-                        <svg id="eyeIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                            <path d="M6.61 6.61A13.56 13.56 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.36-1.63"/>
-                            <line x1="2" x2="22" y1="2" y2="22"/>
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Error Message (NEW) -->
-                <span id="errorPassword" class="text-sm text-red-600 mt-1 hidden"></span>
-                
-                <!-- End Password Input with Toggle -->
-
                 <button 
                     id="loginButton" 
                     class="w-full mt-4 p-3 bg-green-500 text-white font-extrabold text-lg rounded-xl hover:bg-green-600 transition duration-200 shadow-lg shadow-green-300 active:scale-[0.98] transform" 
@@ -308,7 +281,7 @@
         const API_KEY_STORE_KEY = 'geminiApiKey';
         // Initialize apiKey from local storage. If not found, it remains an empty string.
         let apiKey = localStorage.getItem(API_KEY_STORE_KEY) || ""; 
-        let apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
+        const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
         
         // --- Audience Data (Static Fallback data) ---
         const genericAudience = {
@@ -369,44 +342,32 @@
         const policyContent = document.getElementById('policyContent');
         const policySources = document.getElementById('policySources');
 
-        // Login elements
+        // Login elements (MODIFIED: password related elements removed)
         const loginSection = document.getElementById('loginSection');
         const appSection = document.getElementById('appSection');
         const apiInput = document.getElementById('apiInput');
-        const passwordInput = document.getElementById('passwordInput');
         const loginButton = document.getElementById('loginButton');
         const logoutButton = document.getElementById('logoutButton');
-        const passwordToggle = document.getElementById('passwordToggle');
-        const eyeIcon = document.getElementById('eyeIcon');
-        const errorPassword = document.getElementById('errorPassword'); // Error message span
 
         let isGenerating = false; 
 
         // --- Utility Functions ---
         
         /**
-         * Hides the password error message and resets the input border.
+         * Function to handle logout
          */
-        function hidePasswordError() {
-            errorPassword.classList.add('hidden');
-            passwordInput.classList.remove('border-red-500');
-            passwordInput.classList.add('border-gray-300');
-            errorPassword.textContent = '';
+        function logoutUser() {
+            apiKey = "";
+            localStorage.removeItem(API_KEY_STORE_KEY);
+            apiInput.value = ""; // Clear input field
+            updateUI();
+            alert('Logout အောင်မြင်ပါသည်။'); 
         }
-
+        window.logoutUser = logoutUser;
+        
         /**
-         * Shows the password error message and sets the input border to red.
-         * @param {string} message - The error message to display.
+         * Hides or shows UI sections based on API key presence.
          */
-        function showPasswordError(message) {
-            errorPassword.textContent = message;
-            errorPassword.classList.remove('hidden');
-            passwordInput.classList.remove('border-gray-300');
-            passwordInput.classList.add('border-red-500');
-            passwordInput.focus();
-        }
-
-        // Function to toggle UI visibility based on API key status
         function updateUI() {
             if (apiKey) {
                 loginSection.classList.add('hidden');
@@ -419,56 +380,14 @@
             }
         }
         
-        // Function to save the API key
+        /**
+         * Function to save the API key
+         */
         function saveApiKey(key) {
             apiKey = key;
             localStorage.setItem(API_KEY_STORE_KEY, key);
             updateUI();
         }
-        
-        // Password validation logic
-        function validatePassword(password) {
-            // Check for exact 10 character length
-            if (password.length !== 10) {
-                return false;
-            }
-            
-            const prefix = password.substring(0, 6); // Should be "digibk"
-            if (prefix !== 'digibk') {
-                return false;
-            }
-            
-            const numberPart = password.substring(6); // Should be a 4-digit number
-            
-            // Check if the number part is exactly 4 digits long and only contains digits
-            if (numberPart.length !== 4 || !/^\d{4}$/.test(numberPart)) {
-                return false;
-            }
-
-            const numberValue = parseInt(numberPart, 10);
-
-            // Check the specified range: 251 to 800
-            if (numberValue >= 251 && numberValue <= 800) {
-                return true;
-            }
-
-            return false;
-        }
-
-
-        // Function to handle logout
-        function logoutUser() {
-            apiKey = "";
-            localStorage.removeItem(API_KEY_STORE_KEY);
-            apiInput.value = ""; // Clear input field
-            passwordInput.value = ""; // Clear password field
-            hidePasswordError(); // Hide error on logout
-            updateUI();
-            // Using alert() temporarily for this specific use case, but generally avoided in Immersives.
-            // Using a custom modal would be preferred for production environment.
-            alert('Logout အောင်မြင်ပါသည်။'); 
-        }
-        window.logoutUser = logoutUser;
 
         function copyToClipboard(textToCopy, buttonElement) {
             // 1. Create a temporary textarea
@@ -546,7 +465,6 @@
                     });
                     if (!response.ok) {
                          // Throw to trigger retry if non-200 status (e.g., 429, 500, or invalid key)
-                         // We include the status in the error message for better debugging in the main handler
                          throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     const result = await response.json();
@@ -748,7 +666,6 @@
 
         function renderAudienceResults(audienceData, keyword, region, apiFailed = false) {
             const container = document.getElementById('resultsContainer');
-            // The fix was removing the line that caused the original error, so we proceed to render.
 
             let headerTitle;
             if (audienceData.isDynamic) {
@@ -858,42 +775,12 @@
         }
         window.showPolicySummary = showPolicySummary; 
         
-        // --- Password Toggle Logic ---
-        const eyeOpenSVG = `
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                <circle cx="12" cy="12" r="3"/>
-            </svg>
-        `;
-        const eyeOffSVG = `
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                <path d="M6.61 6.61A13.56 13.56 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.36-1.63"/>
-                <line x1="2" x2="22" y1="2" y2="22"/>
-            </svg>
-        `;
-
-        function togglePasswordVisibility() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.innerHTML = eyeOpenSVG;
-                passwordToggle.setAttribute('aria-label', 'စကားဝှက် ဖျောက်ရန်');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.innerHTML = eyeOffSVG;
-                passwordToggle.setAttribute('aria-label', 'စကားဝှက် ပြသရန်');
-            }
-        }
-        
         // --- Event Listeners ---
         
         // Login Button Listener
         loginButton.addEventListener('click', () => {
-            hidePasswordError(); // Clear previous errors
             
             const key = apiInput.value.trim();
-            const password = passwordInput.value.trim(); 
 
             // 1. Validate API Key
             if (key.length < 30) { 
@@ -901,23 +788,9 @@
                 return;
             }
             
-            // 2. Validate Password (Now with visual error feedback)
-            if (!validatePassword(password)) {
-                // MODIFIED: Replaced specific password requirements with a generic error
-                showPasswordError('စကားဝှက် (Password) မှားယွင်းနေပါသည်။');
-                return; // Stop execution if password is wrong
-            }
-
-            // If both are valid, proceed to save key and log in
+            // If API key is valid, proceed to save key and log in
             saveApiKey(key);
         });
-        
-        // NEW: Password Toggle Listener
-        passwordToggle.addEventListener('click', togglePasswordVisibility);
-
-        // Clear error when user types again
-        passwordInput.addEventListener('input', hidePasswordError);
-
 
         // Main Suggest Button Listener
         suggestButton.addEventListener('click', async () => {
@@ -1011,7 +884,6 @@
              budgetAmount.value = '5';
              adDays.value = '7';
              apiInput.value = apiKey; // Show key if it exists
-             // We don't restore the password, so it remains empty.
              updateUI(); // Check key and show/hide sections
         });
 
